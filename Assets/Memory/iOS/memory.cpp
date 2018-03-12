@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #ifdef __MACH__
 #include <mach/mach.h>
 #endif
@@ -18,7 +20,7 @@
 #endif
 
 extern "C"
-PLUGIN_APICALL int64_t ProcessResidentMemory()
+PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
 {
 #ifdef __MACH__
     mach_port_t task = mach_task_self();
@@ -33,7 +35,7 @@ PLUGIN_APICALL int64_t ProcessResidentMemory()
 }
 
 extern "C"
-PLUGIN_APICALL int64_t ProcessVirtualMemory()
+PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
 {
 #ifdef __MACH__
     mach_port_t task = mach_task_self();
@@ -48,7 +50,7 @@ PLUGIN_APICALL int64_t ProcessVirtualMemory()
 }
 
 extern "C"
-PLUGIN_APICALL int64_t SystemFreeMemory()
+PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemFreeMemory()
 {
 #ifdef __MACH__
     mach_port_t host = mach_host_self();
