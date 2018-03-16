@@ -23,6 +23,77 @@
 #   define PLUGIN_APIENTRY
 #endif
 
+#if defined(__ANDROID__)
+static int64_t getMemoryImpl(const char* const from, const char* const file, const char* const sums[], const size_t sumsLen[], size_t num)
+{
+	int fd = open(file, O_RDONLY | O_CLOEXEC);
+	if(fd < 0)
+	{
+		__android_log_print(ANDROID_LOG_DEBUG, from, "Unable to open %s\n", file);
+		return -1;
+	}
+	
+	char buffer[512];
+	const ssize_t len = read(fd, buffer, sizeof(buffer) - 1);
+	close(fd);
+	if(len < 0)
+	{
+		__android_log_print(ANDROID_LOG_DEBUG, from, "Unable to read %s\n", file);
+		return -1;
+	}
+	
+	// 0 terminate the buffer we just read.
+	buffer[len] = 0;
+
+	// This will keep track of the total memory parsed.
+	int64_t mem = 0;
+	
+	// Keep track of the number of sum labels found.
+	size_t numFound = 0;
+	
+	for(char* p = buffer; *p && numFound < num; ++p)
+	{
+		for(size_t i = 0; sums[i]; ++i)
+		{
+			// Does the sum label match.
+			if (strncmp(p, sums[i], sumsLen[i]) == 0)
+			{
+				// It does, increment how many we found.
+				numFound++;
+
+				// Skip the label size.
+				p += sumsLen[i];
+				
+				// Skip spaces.
+				while(*p == ' ' || *p == '\t') ++p;
+				
+				// Number start.
+				char* num = p;
+				
+				// Find the number end.
+				while (*p >= '0' && *p <= '9') ++p;
+				
+				// If not at the buffer end.
+				if(*p != 0)
+				{
+					// 0 terminated the number string.
+					*p++ = 0;
+					
+					// Just make sure we are not at the buffer end.
+					if(*p == 0) --p;
+				}
+				// Convert the number string (KB) to an actual number and add it to the total.
+				mem += atoll(num) * 1024;
+				
+				break;
+			}
+		}
+	}
+	
+	return numFound > 0 ? mem : -1;
+}
+#endif
+
 extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
 {
@@ -34,6 +105,10 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
     {
         return static_cast<int64_t>(info.resident_size);
     }
+#elif defined(__ANDROID__)
+	static const char* const sums[] = { "VmRSS:", NULL };
+	static const size_t sumsLen[] = { strlen("VmRSS:"), 0 };
+	return getMemoryImpl("ProcessResidentMemory", "/proc/self/status", sums, sumsLen, 1);
 #endif
     return 0;
 }
@@ -49,66 +124,13 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
     {
         return static_cast<int64_t>(info.virtual_size);
     }
+#elif defined(__ANDROID__)
+	static const char* const sums[] = { "VmSize:", NULL };
+	static const size_t sumsLen[] = { strlen("VmSize:"), 0 };
+	return getMemoryImpl("ProcessVirtualMemory", "/proc/self/status", sums, sumsLen, 1);
 #endif
     return 0;
 }
-
-#if defined(__ANDROID__)
-static int64_t getFreeMemoryImpl(const char* const from, const char* const sums[], const size_t sumsLen[], size_t num)
-{
-    int fd = open("/proc/meminfo", O_RDONLY | O_CLOEXEC);
-    if(fd < 0)
-    {
-        __android_log_print(ANDROID_LOG_DEBUG, from, "Unable to open /proc/meminfo\n");
-        return -1;
-    }
-
-    char buffer[256];
-    const int len = read(fd, buffer, sizeof(buffer) - 1);
-    close(fd);
-    if(len < 0)
-    {
-        __android_log_print(ANDROID_LOG_DEBUG, from, "Unable to read /proc/meminfo\n");
-        return -1;
-    }
-
-    // 0 terminate the buffer we just read.
-    buffer[len] = 0;
-
-    int numFound = 0;
-    int64_t mem = 0;
-    for(char* p = buffer; *p && numFound < num; ++p)
-    {
-        for(int i = 0; sums[i]; ++i)
-        {
-            if (strncmp(p, sums[i], sumsLen[i]) == 0)
-            {
-                p += sumsLen[i];
-
-                while(*p == ' ') ++p;
-
-                char* num = p;
-
-                while (*p >= '0' && *p <= '9') ++p;
-
-                if(*p != 0)
-                {
-                    *p++ = 0;
-
-                    if(*p == 0) --p;
-                }
-
-                mem += atoll(num) * 1024;
-                numFound++;
-
-                break;
-            }
-        }
-    }
-
-    return numFound > 0 ? mem : -1;
-}
-#endif
 
 extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemFreeMemory()
@@ -128,7 +150,7 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemFreeMemory()
 #elif defined(__ANDROID__)
     static const char* const sums[] = { "MemFree:", "Cached:", NULL };
     static const size_t sumsLen[] = { strlen("MemFree:"), strlen("Cached:"), 0 };
-    return getFreeMemoryImpl("SystemFreeMemory", sums, sumsLen, 2);
+    return getMemoryImpl("SystemFreeMemory", "/proc/meminfo", sums, sumsLen, 2);
 #endif
     return 0;
 }
@@ -152,7 +174,7 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemTotalMemory()
 #elif defined(__ANDROID__)
     static const char* const sums[] = { "MemTotal:", NULL };
     static const size_t sumsLen[] = { strlen("MemTotal:"), 0 };
-    return getFreeMemoryImpl("SystemTotalMemory", sums, sumsLen, 1);
+    return getMemoryImpl("SystemTotalMemory", "/proc/meminfo", sums, sumsLen, 1);
 #endif
     return 0;
 }
