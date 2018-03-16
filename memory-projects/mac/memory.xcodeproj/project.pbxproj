@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		64B2D8852056A83500EA8CB5 /* memory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64B2D8842056A83500EA8CB5 /* memory.cpp */; };
+		F79C9239205C5E0B00FB8E7A /* memory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F79C9238205C5E0B00FB8E7A /* memory.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		64B2D8842056A83500EA8CB5 /* memory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = memory.cpp; path = ../../Assets/scripts/Memory/iOS/memory.cpp; sourceTree = "<group>"; };
 		F701DF041E01C1F800850655 /* memory.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = memory.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		F701DF071E01C1F800850655 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F79C9238205C5E0B00FB8E7A /* memory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = memory.cpp; path = ../../Assets/Memory/iOS/memory.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,7 +47,7 @@
 		F701DF0D1E01C1FE00850655 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				64B2D8842056A83500EA8CB5 /* memory.cpp */,
+				F79C9238205C5E0B00FB8E7A /* memory.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -119,7 +119,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64B2D8852056A83500EA8CB5 /* memory.cpp in Sources */,
+				F79C9239205C5E0B00FB8E7A /* memory.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
