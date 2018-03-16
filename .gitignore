@@ -4,3 +4,4 @@ obj/
 build/
 *.sln
 *.csproj
+*.userprefs
