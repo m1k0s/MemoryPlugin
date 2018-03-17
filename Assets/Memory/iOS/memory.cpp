@@ -6,6 +6,9 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <android/log.h>
+#elif defined(_WIN32)
+#include "windows.h"
+#include "psapi.h"
 #endif
 
 #if defined(_WIN32) && !defined(__SCITECH_SNAP__)
@@ -130,6 +133,10 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
 	static const char* const sums[] = { "VmRSS:" };
 	static const size_t sumsLen[] = { strlen("VmRSS:") };
 	return getMemoryImpl(__FUNCTION__, "/proc/self/status", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
+#elif defined(_WIN32)
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&pmc), sizeof(pmc));
+	return static_cast<int64_t>(pmc.WorkingSetSize);
 #endif
     return 0;
 }
@@ -154,6 +161,10 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
 	static const char* const sums[] = { "VmSize:" };
 	static const size_t sumsLen[] = { strlen("VmSize:") };
 	return getMemoryImpl(__FUNCTION__, "/proc/self/status", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
+#elif defined(_WIN32)
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&pmc), sizeof(pmc));
+	return static_cast<int64_t>(pmc.PrivateUsage);
 #endif
     return 0;
 }
@@ -182,6 +193,11 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemFreeMemory()
     static const char* const sums[] = { "MemFree:", "Cached:" };
     static const size_t sumsLen[] = { strlen("MemFree:"), strlen("Cached:") };
     return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 2) * KIBIBYTES_TO_BYTES;
+#elif defined(_WIN32)
+	MEMORYSTATUSEX memInfo;
+	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+	GlobalMemoryStatusEx(&memInfo);
+	return static_cast<int64_t>(memInfo.ullTotalPhys - memInfo.ullAvailPhys);
 #endif
     return 0;
 }
@@ -211,6 +227,11 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemTotalMemory()
     static const char* const sums[] = { "MemTotal:" };
     static const size_t sumsLen[] = { strlen("MemTotal:") };
     return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
+#elif defined(_WIN32)
+	MEMORYSTATUSEX memInfo;
+	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+	GlobalMemoryStatusEx(&memInfo);
+	return static_cast<int64_t>(memInfo.ullTotalPhys);
 #endif
     return 0;
 }
