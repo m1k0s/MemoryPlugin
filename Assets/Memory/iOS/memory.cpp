@@ -24,12 +24,26 @@
 #endif
 
 #if defined(__ANDROID__)
-static int64_t getMemoryImpl(const char* const from, const char* const file, const char* const sums[], const size_t sumsLen[], size_t num)
+#define KIBIBYTES_TO_BYTES 1024
+
+/**
+ *	Parse a proc fs file for (an array of) label/number pairs and return their sum.
+ *	Based on https://android.googlesource.com/platform/frameworks/base.git/+/master/core/jni/android_util_Process.cpp
+ *
+ *	@param	caller	Calling function name for logging.
+ *	@param	file	The proc fs file to use.
+ *	@param	sums	Array of labels to search for.
+ *	@param	sumsLen	Array of label sizes (one per label in sums).
+ *	@param	num		Array size.
+ *
+ *	@return	The calculated sum.
+ */
+static int64_t getMemoryImpl(const char* const caller, const char* const file, const char* const sums[], const size_t sumsLen[], size_t num)
 {
 	int fd = open(file, O_RDONLY | O_CLOEXEC);
 	if(fd < 0)
 	{
-		__android_log_print(ANDROID_LOG_DEBUG, from, "Unable to open %s\n", file);
+		__android_log_print(ANDROID_LOG_DEBUG, caller, "Unable to open %s\n", file);
 		return -1;
 	}
 	
@@ -38,7 +52,7 @@ static int64_t getMemoryImpl(const char* const from, const char* const file, con
 	close(fd);
 	if(len < 0)
 	{
-		__android_log_print(ANDROID_LOG_DEBUG, from, "Unable to read %s\n", file);
+		__android_log_print(ANDROID_LOG_DEBUG, caller, "Unable to read %s\n", file);
 		return -1;
 	}
 	
@@ -64,7 +78,7 @@ static int64_t getMemoryImpl(const char* const from, const char* const file, con
 				// Skip the label size.
 				p += sumsLen[i];
 				
-				// Skip spaces.
+				// Skip whitespace.
 				while(*p == ' ' || *p == '\t') ++p;
 				
 				// Number start.
@@ -76,15 +90,17 @@ static int64_t getMemoryImpl(const char* const from, const char* const file, con
 				// If not at the buffer end.
 				if(*p != 0)
 				{
-					// 0 terminated the number string.
+					// 0 terminate the number string.
 					*p++ = 0;
 					
 					// Just make sure we are not at the buffer end.
 					if(*p == 0) --p;
 				}
-				// Convert the number string (KB) to an actual number and add it to the total.
-				mem += atoll(num) * 1024;
 				
+				// Convert the number string to an actual number and add it to the total.
+				mem += atoll(num);
+				
+				// Label found; break out of the inner loop.
 				break;
 			}
 		}
@@ -106,9 +122,9 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
         return static_cast<int64_t>(info.resident_size);
     }
 #elif defined(__ANDROID__)
-	static const char* const sums[] = { "VmRSS:", NULL };
-	static const size_t sumsLen[] = { strlen("VmRSS:"), 0 };
-	return getMemoryImpl("ProcessResidentMemory", "/proc/self/status", sums, sumsLen, 1);
+	static const char* const sums[] = { "VmRSS:" };
+	static const size_t sumsLen[] = { strlen("VmRSS:") };
+	return getMemoryImpl(__FUNCTION__, "/proc/self/status", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
 #endif
     return 0;
 }
@@ -125,9 +141,9 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
         return static_cast<int64_t>(info.virtual_size);
     }
 #elif defined(__ANDROID__)
-	static const char* const sums[] = { "VmSize:", NULL };
-	static const size_t sumsLen[] = { strlen("VmSize:"), 0 };
-	return getMemoryImpl("ProcessVirtualMemory", "/proc/self/status", sums, sumsLen, 1);
+	static const char* const sums[] = { "VmSize:" };
+	static const size_t sumsLen[] = { strlen("VmSize:") };
+	return getMemoryImpl(__FUNCTION__, "/proc/self/status", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
 #endif
     return 0;
 }
@@ -148,9 +164,9 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemFreeMemory()
         }
     }
 #elif defined(__ANDROID__)
-    static const char* const sums[] = { "MemFree:", "Cached:", NULL };
-    static const size_t sumsLen[] = { strlen("MemFree:"), strlen("Cached:"), 0 };
-    return getMemoryImpl("SystemFreeMemory", "/proc/meminfo", sums, sumsLen, 2);
+    static const char* const sums[] = { "MemFree:", "Cached:" };
+    static const size_t sumsLen[] = { strlen("MemFree:"), strlen("Cached:") };
+    return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 2) * KIBIBYTES_TO_BYTES;
 #endif
     return 0;
 }
@@ -172,9 +188,9 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemTotalMemory()
         }
     }
 #elif defined(__ANDROID__)
-    static const char* const sums[] = { "MemTotal:", NULL };
-    static const size_t sumsLen[] = { strlen("MemTotal:"), 0 };
-    return getMemoryImpl("SystemTotalMemory", "/proc/meminfo", sums, sumsLen, 1);
+    static const char* const sums[] = { "MemTotal:" };
+    static const size_t sumsLen[] = { strlen("MemTotal:") };
+    return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
 #endif
     return 0;
 }
