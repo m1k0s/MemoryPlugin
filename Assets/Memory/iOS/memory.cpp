@@ -110,6 +110,11 @@ static int64_t getMemoryImpl(const char* const caller, const char* const file, c
 }
 #endif
 
+/**
+ *	Return the process resident memory.
+ *
+ *	@return	The process resident memory in bytes.
+ */
 extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
 {
@@ -129,6 +134,11 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
     return 0;
 }
 
+/**
+ *	Return the process virtual memory.
+ *
+ *	@return	The process virtual memory in bytes.
+ */
 extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
 {
@@ -148,6 +158,11 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
     return 0;
 }
 
+/**
+ *	Return the system free memory.
+ *
+ *	@return	The system free memory in bytes.
+ */
 extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemFreeMemory()
 {
@@ -171,6 +186,11 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemFreeMemory()
     return 0;
 }
 
+/**
+ *	Return the system total memory.
+ *
+ *	@return	The system total memory in bytes.
+ */
 extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemTotalMemory()
 {
