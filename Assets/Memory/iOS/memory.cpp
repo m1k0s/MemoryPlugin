@@ -130,8 +130,8 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
         return static_cast<int64_t>(info.resident_size);
     }
 #elif defined(__ANDROID__)
-	static const char* const sums[] = { "VmRSS:" };
-	static const size_t sumsLen[] = { strlen("VmRSS:") };
+	static const char* const sums[] = { "VmRSS:", NULL };
+	static const size_t sumsLen[] = { strlen("VmRSS:"), 0 };
 	return getMemoryImpl(__FUNCTION__, "/proc/self/status", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
 #elif defined(_WIN32)
 	PROCESS_MEMORY_COUNTERS_EX pmc;
@@ -158,8 +158,8 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
         return static_cast<int64_t>(info.virtual_size);
     }
 #elif defined(__ANDROID__)
-	static const char* const sums[] = { "VmSize:" };
-	static const size_t sumsLen[] = { strlen("VmSize:") };
+	static const char* const sums[] = { "VmSize:", NULL };
+	static const size_t sumsLen[] = { strlen("VmSize:"), 0 };
 	return getMemoryImpl(__FUNCTION__, "/proc/self/status", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
 #elif defined(_WIN32)
 	PROCESS_MEMORY_COUNTERS_EX pmc;
@@ -190,8 +190,8 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemFreeMemory()
         }
     }
 #elif defined(__ANDROID__)
-    static const char* const sums[] = { "MemFree:", "Cached:" };
-    static const size_t sumsLen[] = { strlen("MemFree:"), strlen("Cached:") };
+    static const char* const sums[] = { "MemFree:", "Cached:", NULL };
+    static const size_t sumsLen[] = { strlen("MemFree:"), strlen("Cached:"), 0 };
     return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 2) * KIBIBYTES_TO_BYTES;
 #elif defined(_WIN32)
 	MEMORYSTATUSEX memInfo;
@@ -224,8 +224,8 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemTotalMemory()
         }
     }
 #elif defined(__ANDROID__)
-    static const char* const sums[] = { "MemTotal:" };
-    static const size_t sumsLen[] = { strlen("MemTotal:") };
+    static const char* const sums[] = { "MemTotal:", NULL };
+    static const size_t sumsLen[] = { strlen("MemTotal:"), 0 };
     return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
 #elif defined(_WIN32)
 	MEMORYSTATUSEX memInfo;
