@@ -71,11 +71,128 @@ public static class Memory
         }
     }
 
-    #if UNITY_IPHONE && !UNITY_EDITOR
+    /// <summary>
+    /// C# class representing a memory-mapped file.
+    /// </summary>
+    public class MappedFile : IDisposable
+    {
+        /// <summary>
+        /// Gets the data pointer to the memory-mapped file contents.
+        /// </summary>
+        /// This can be IntPtr.Zero.
+        /// <value>The data.</value>
+        public IntPtr data
+        {
+            get
+            {
+                return _data;
+            }
+        }
+
+        /// <summary>
+        /// Gets the size of the memory-mapped file.
+        /// </summary>
+        /// <value>The size.</value>
+        public long size
+        {
+            get
+            {
+                return _size;
+            }
+        }
+
+        private IntPtr _data = IntPtr.Zero;
+        private long _size = 0;
+        private bool _disposed = false;
+
+        /// <summary>
+        /// Creates a <see cref="Memory+MappedFile"/> instance from a file path.
+        /// </summary>
+        /// <returns>The <see cref="Memory+MappedFile"/>.</returns>
+        /// <param name="path">Path to the file on-disk.</param>
+        public static MappedFile CreateFromFile(string path)
+        {
+            return CreateFromFile(path, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Memory+MappedFile"/> instance from a file path.
+        /// </summary>
+        /// <returns>The <see cref="Memory+MappedFile"/>.</returns>
+        /// <param name="path">Path to the file on-disk.</param>
+        /// <param name="mode">Mode. Currently only <see cref="FileMode+Open"/> is supported.</param>
+        /// <param name="access">Access. Currently only <see cref="FileAccess+Read"/> is supported.</param>
+        public static MappedFile CreateFromFile(string path, System.IO.FileMode mode, System.IO.FileAccess access)
+        {
+            if (path == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (!System.IO.File.Exists(path))
+            {
+                throw new System.IO.IOException(string.Concat("\"", path, "\" does not exist."));
+            }
+
+            if (mode != System.IO.FileMode.Open)
+            {
+                throw new NotSupportedException("Only FileMode.Open is supported.");
+            }
+
+            if (access != System.IO.FileAccess.Read)
+            {
+                throw new NotSupportedException("Only FileAccess.Read is supported.");
+            }
+
+            var mappedFile = new MappedFile();
+
+#if UNITY_IPHONE && !UNITY_EDITOR
+            mappedFile._data = MemoryMap(path, out _size);
+#endif
+
+            return mappedFile;
+        }
+
+        /// <summary>
+        /// Public implementation of Dispose pattern callable by consumers.
+        /// </summary>
+        /// <remarks>Call <see cref="Dispose"/> when you are finished using the <see cref="Memory+MappedFile"/>. The
+        /// <see cref="Dispose"/> method leaves the <see cref="Memory+MappedFile"/> in an unusable state. After calling
+        /// <see cref="Dispose"/>, you must release all references to the <see cref="Memory+MappedFile"/> so the garbage
+        /// collector can reclaim the memory that the <see cref="Memory+MappedFile"/> was occupying.</remarks>
+        public void Dispose()
+        { 
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Protected implementation of Dispose pattern.
+        /// </summary>
+        /// <param name="disposing">If set to <c>true</c> disposing.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+#if UNITY_IPHONE && !UNITY_EDITOR
+                MemoryUnMap(_data, _size);
+#endif
+            }
+
+            _disposed = true;
+        }
+    }
+
+#if UNITY_IPHONE && !UNITY_EDITOR
     private const string __importName = "__Internal";
-    #else
+#else
     private const string __importName = "memory";
-    #endif
+#endif
 
     [DllImport(__importName)] extern private static long ProcessResidentMemory();
 
@@ -84,4 +201,9 @@ public static class Memory
     [DllImport(__importName)] extern private static long SystemFreeMemory();
 
     [DllImport(__importName)] extern private static long SystemTotalMemory();
+
+//#if UNITY_IPHONE && !UNITY_EDITOR
+    [DllImport(__importName)] extern private static IntPtr MemoryMap(string path, out long size);
+    [DllImport(__importName)] extern private static void MemoryUnMap(IntPtr data, long size);
+//#endif
 }
