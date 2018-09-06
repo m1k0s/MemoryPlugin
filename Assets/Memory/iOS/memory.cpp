@@ -2,10 +2,16 @@
 
 #if defined(__MACH__)
 #include <mach/mach.h>
+#include <stdio.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #elif defined(__ANDROID__)
 #include <fcntl.h>
 #include <stdlib.h>
 #include <android/log.h>
+#include <stdio.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #elif defined(_WIN32)
 #include "windows.h"
 #include "psapi.h"
@@ -247,10 +253,33 @@ extern "C"
 PLUGIN_APICALL void PLUGIN_APIENTRY MemoryMap(const char* path, void** data, int64_t* size)
 {
 	*data = NULL;
-	*size = 0;
-#if defined(__MACH__)
-#elif defined(__ANDROID__)
-#elif defined(_WIN32)
+	*size = -1;
+	
+#if defined(_WIN32)
+#else
+	FILE* fd = ::fopen(path, "rb");
+	
+	if(NULL != fd)
+	{
+		struct stat stat;
+		::fstat(fileno(fd), &stat);
+
+		if(0 != stat.st_size)
+		{
+			*data = ::mmap(NULL, stat.st_size, PROT_READ, MAP_PRIVATE, fileno(fd), 0);
+			
+			if(MAP_FAILED == *data)
+			{
+				*data = NULL;
+			}
+			else
+			{
+				*size = stat.st_size;
+			}
+		}
+		
+		::fclose(fd);
+	}
 #endif
 }
 
@@ -263,8 +292,8 @@ PLUGIN_APICALL void PLUGIN_APIENTRY MemoryMap(const char* path, void** data, int
 extern "C"
 PLUGIN_APICALL void PLUGIN_APIENTRY MemoryUnMap(void* data, int64_t size)
 {
-#if defined(__MACH__)
-#elif defined(__ANDROID__)
-#elif defined(_WIN32)
+#if defined(_WIN32)
+#else
+	::munmap(data, size);
 #endif
 }
