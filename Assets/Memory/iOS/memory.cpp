@@ -235,3 +235,36 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemTotalMemory()
 #endif
     return 0;
 }
+
+/**
+ *	Memory-map a file.
+ *
+ *	@param	path	Path to the file on-disk.
+ *	@param[out]	data	The memory-mapped file address.
+ *	@param[out]	size	The memory-mapped file size.
+ */
+extern "C"
+PLUGIN_APICALL void PLUGIN_APIENTRY MemoryMap(const wchar_t* path, void** data, int64_t* size)
+{
+	*data = NULL;
+	*size = 0;
+#if defined(__MACH__)
+#elif defined(__ANDROID__)
+#elif defined(_WIN32)
+#endif
+}
+
+/**
+ *	Unmap a memory-mapped file.
+ *
+ *	@param	data	The memory-mapped file address.
+ *	@param	size	The memory-mapped file size.
+ */
+extern "C"
+PLUGIN_APICALL void PLUGIN_APIENTRY MemoryUnMap(void* data, int64_t size)
+{
+#if defined(__MACH__)
+#elif defined(__ANDROID__)
+#elif defined(_WIN32)
+#endif
+}
