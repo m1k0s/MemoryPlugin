@@ -284,6 +284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 812052457}
+  file: Test.txt
 --- !u!1 &1094199816
 GameObject:
   m_ObjectHideFlags: 0
