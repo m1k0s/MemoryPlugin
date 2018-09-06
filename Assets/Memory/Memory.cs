@@ -148,6 +148,10 @@ public static class Memory
 
 #if UNITY_IPHONE && !UNITY_EDITOR
             MemoryMap(path, out mappedFile._data, out mappedFile._size);
+            if (mappedFile._size == -1)
+            {
+                throw new System.IO.IOException(string.Concat("Failed to memory-map \"", path, "\"."));
+            }
 #endif
 
             return mappedFile;
