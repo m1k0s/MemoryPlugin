@@ -244,7 +244,7 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemTotalMemory()
  *	@param[out]	size	The memory-mapped file size.
  */
 extern "C"
-PLUGIN_APICALL void PLUGIN_APIENTRY MemoryMap(const wchar_t* path, void** data, int64_t* size)
+PLUGIN_APICALL void PLUGIN_APIENTRY MemoryMap(const char* path, void** data, int64_t* size)
 {
 	*data = NULL;
 	*size = 0;
