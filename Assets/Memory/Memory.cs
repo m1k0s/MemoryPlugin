@@ -146,13 +146,11 @@ public static class Memory
 
             var mappedFile = new MappedFile();
 
-#if UNITY_IPHONE && !UNITY_EDITOR
             MemoryMap(path, out mappedFile._data, out mappedFile._size);
             if (mappedFile._size == -1)
             {
                 throw new System.IO.IOException(string.Concat("Failed to memory-map \"", path, "\"."));
             }
-#endif
 
             return mappedFile;
         }
@@ -183,9 +181,7 @@ public static class Memory
 
             if (disposing)
             {
-#if UNITY_IPHONE && !UNITY_EDITOR
                 MemoryUnMap(_data, _size);
-#endif
             }
 
             _disposed = true;
@@ -206,8 +202,7 @@ public static class Memory
 
     [DllImport(__importName)] extern private static long SystemTotalMemory();
 
-#if UNITY_IPHONE && !UNITY_EDITOR
     [DllImport(__importName)] extern private static void MemoryMap(string path, out IntPtr data, out long size);
+
     [DllImport(__importName)] extern private static void MemoryUnMap(IntPtr data, long size);
-#endif
 }
