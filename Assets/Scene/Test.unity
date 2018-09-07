@@ -197,6 +197,112 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &772715143
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 772715144}
+  - component: {fileID: 772715147}
+  - component: {fileID: 772715146}
+  - component: {fileID: 772715145}
+  m_Layer: 5
+  m_Name: MemoryMappedFile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &772715144
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 772715143}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1094199820}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &772715145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 772715143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 909009d3d8603464fa74e8fccd6cf66a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: {fileID: 772715146}
+  file: Test.txt
+--- !u!114 &772715146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 772715143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 12
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 1
+    m_MaxSize: 40
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
+    m_LineSpacing: 1
+  m_Text: "Test.txt\n4870725632: 41 43 54 20 49 0A 53 43 | ACT I.SC\n4870725640: 45
+    4E 45 20 49 2E 20 45 | ENE I. E\n4870725648: 6C 73 69 6E 6F 72 65 2E | lsinore.\n4870725656:
+    20 41 20 70 6C 61 74 66 |  A platf\n4870725664: 6F 72 6D 20 62 65 66 6F | orm
+    befo\n4870725672: 72 65 20 74 68 65 20 63 | re the c\n4870725680: 61 73 74 6C
+    65 2E 0A 46 | astle..F\n4870725688: 52 41 4E 43 49 53 43 4F | RANCISCO\n4870725696:
+    20 61 74 20 68 69 73 20 |  at his \n4870725704: 70 6F 73 74 2E 20 45 6E | post.
+    En\n4870725712: 74 65 72 20 74 6F 20 68 | ter to h\n4870725720: 69 6D 20 42 45
+    52 4E 41 | im BERNA\n4870725728: 52 44 4F 0A 42 45 52 4E | RDO.BERN\n4870725736:
+    41 52 44 4F 0A 57 68 6F | ARDO.Who\n4870725744: 27 73 20 74 68 65 72 65 | 's there\n4870725752:
+    3F 0A 46 52 41 4E 43 49 | ?.FRANCI\n4870725760: 53 43 4F 0A 4E 61 79 2C | SCO.Nay,\n4870725768:
+    20 61 6E 73 77 65 72 20 |  answer \n4870725776: 6D 65 3A 20 73 74 61 6E | me:
+    stan\n4870725784: 64 2C 20 61 6E 64 20 75 | d, and u\n4870725792: 6E 66 6F 6C
+    64 20 79 6F | nfold yo\n4870725800: 75 72 73 65 6C 66 2E 0A | urself..\n4870725808:
+    42 45 52 4E 41 52 44 4F | BERNARDO\n4870725816: 0A 4C 6F 6E 67 20 6C 69 | .Long
+    li\n4870725824: 76 65 20 74 68 65 20 6B | ve the k\n4870725832: 69 6E 67 21 0A
+    46 52 41 | ing!.FRA\n4870725840: 4E 43 49 53 43 4F 0A 42 | NCISCO.B\n4870725848:
+    65 72 6E 61 72 64 6F 3F | ernardo?\n4870725856: 0A 42 45 52 4E 41 52 44 | .BERNARD\n4870725864:
+    4F 0A 48 65 2E 0A 46 52 | O.He..FR\n4870725872: 41 4E 43 49 53 43 4F 0A | ANCISCO.\n4870725880:
+    59 6F 75 20 63 6F 6D 65 | You come\n"
+--- !u!222 &772715147
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 772715143}
 --- !u!1 &812052455
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,7 +315,7 @@ GameObject:
   - component: {fileID: 812052457}
   - component: {fileID: 812052459}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Memory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -226,7 +332,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1094199820}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -265,7 +371,15 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 423.5
+  m_Text: 'Process Resident: 331.0MB
+
+    Process Virtual: 5468.8MB
+
+    System Free: 121.9MB
+
+    System Total: 15047.5MB
+
+'
 --- !u!222 &812052458
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -284,7 +398,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 812052457}
-  file: Test.txt
 --- !u!1 &1094199816
 GameObject:
   m_ObjectHideFlags: 0
@@ -370,6 +483,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
+  - {fileID: 772715144}
   - {fileID: 812052456}
   m_Father: {fileID: 0}
   m_RootOrder: 2
