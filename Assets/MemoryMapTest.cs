@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[ExecuteInEditMode]
 public class MemoryMapTest : MonoBehaviour
 {
     public Text text;
@@ -20,7 +19,7 @@ public class MemoryMapTest : MonoBehaviour
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
     };
 
-    private long _lastMappedFileDataOffset = -1;
+    private long _lastDisplayStart = -1;
 
     private void OnEnable()
     {
@@ -34,7 +33,7 @@ public class MemoryMapTest : MonoBehaviour
 
         _mappedFileDataStart = -1;
         _mappedFileDataEnd = -1;
-        _lastMappedFileDataOffset = -1;
+        _lastDisplayStart = -1;
 
 #if UNITY_EDITOR
         var path = Application.dataPath + "/StreamingAssets/";
@@ -49,6 +48,7 @@ public class MemoryMapTest : MonoBehaviour
             _mappedFileDataStart = _mappedFile.data.ToInt64();
             _mappedFileDataEnd = _mappedFileDataStart + _mappedFile.size;
             _mappedFileDataOffset = 0;
+            Redraw();
         }
     }
 
@@ -68,18 +68,48 @@ public class MemoryMapTest : MonoBehaviour
         }
     }
 
-    private void Update()
+    public void Up()
     {
-        if (-1 == _mappedFileDataStart || _lastMappedFileDataOffset == _mappedFileDataOffset || !Application.isPlaying)
+        if (-1 == _mappedFileDataStart)
         {
             return;
         }
 
-        _builder.Length = 0;
-        _builder.AppendLine(file);
+        _mappedFileDataOffset -= _buffer.Length;
+        if (_mappedFileDataOffset < 0)
+        {
+            _mappedFileDataOffset = 0;
+        }
+
+        Redraw();
+    }
+
+    public void Down()
+    {
+        if (-1 == _mappedFileDataStart)
+        {
+            return;
+        }
+
+        _mappedFileDataOffset += _buffer.Length;
+        if (_mappedFileDataOffset > _mappedFile.size)
+        {
+            _mappedFileDataOffset = (_mappedFile.size / _buffer.Length) * _buffer.Length;
+        }
+
+        Redraw();
+    }
+
+    private void Redraw()
+    {
+        long displayStart = _mappedFileDataStart + _mappedFileDataOffset;
+        if (_lastDisplayStart == displayStart)
+        {
+            return;
+        }
+        _lastDisplayStart = displayStart;
 
         // Work out which part of the file we are reading.
-        long displayStart = _mappedFileDataStart + _mappedFileDataOffset;
         long pageStart = displayStart;
         long pageEnd = pageStart + _buffer.Length;
         if (pageEnd > _mappedFileDataEnd)
@@ -89,6 +119,10 @@ public class MemoryMapTest : MonoBehaviour
 
         // Copy a buffer's worth of data from the pointer.
         System.Runtime.InteropServices.Marshal.Copy(new System.IntPtr(displayStart), _buffer, 0, (int)(pageEnd - pageStart));
+
+        // Prepare the string builder.
+        _builder.Length = 0;
+        _builder.AppendLine(file);
 
         // Add it to the string builder a "line" at a time.
         const long LINE_LENGTH = 16;
