@@ -120,7 +120,7 @@ public class MemoryMapTest : MonoBehaviour
         // Prepare the string builder.
         _builder.Length = 0;
         _builder.Append("File: ").Append(file).AppendLine();
-        _builder.Append("Size: ").Append(_mappedFile.size).AppendLine();
+        _builder.Append("Size: ").Append(_mappedFile.size).Append(" (").Append((ulong)_mappedFile.size, 8).AppendLine(")");
 
         // Add it to the string builder a "line" at a time.
         const long LINE_LENGTH = 16;
@@ -134,11 +134,11 @@ public class MemoryMapTest : MonoBehaviour
                 lineEnd = _mappedFileDataEnd;
             }
 
-            _builder.AppendHex((ulong)(pageStart - _mappedFileDataStart), 8).Append(':');
+            _builder.Append((ulong)(pageStart - _mappedFileDataStart), 8).Append(" |");
 
             for (; lineStart < lineEnd; ++lineStart)
             {
-                _builder.Append(' ').AppendHex(_buffer[(int)(lineStart - displayStart)], 2);
+                _builder.Append(' ').Append(_buffer[(int)(lineStart - displayStart)], 2);
             }
 
             for (; lineStart < lineEndUnclamped; ++lineStart)
@@ -163,29 +163,29 @@ public class MemoryMapTest : MonoBehaviour
 
 internal static class StringBuilderExtensions
 {
-
-    private static readonly char[] HEX_DIGITS = new char[]
+    private static readonly char[] RADIX_DIGITS = new char[]
     {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+        'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V'
     };
 
     private static Stack<char> _buffer = new Stack<char>(16);
 
-    public static StringBuilder AppendHex(this StringBuilder sb, ulong n, int fieldSize = 0)
+    public static StringBuilder Append(this StringBuilder sb, ulong n, int fieldSize = 0, ulong radix = 16)
     {
         _buffer.Clear();
 
         do
         {
-            _buffer.Push(HEX_DIGITS[n % 16]);
-            n /= 16;
+            _buffer.Push(RADIX_DIGITS[n % radix]);
+            n /= radix;
             --fieldSize;
         }
         while(n > 0);
 
         while (fieldSize-- > 0)
         {
-            sb.Append(HEX_DIGITS[0]);
+            sb.Append(RADIX_DIGITS[0]);
         }
         foreach (var c in _buffer)
         {
