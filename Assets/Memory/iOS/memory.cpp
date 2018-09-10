@@ -257,7 +257,7 @@ PLUGIN_APICALL void* PLUGIN_APIENTRY MemoryMap(const char* path, void** data, in
 	*size = -1;
 	
 #if defined(_WIN32)
-	HANDLE fileHandle = ::CreateFile(pathname, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	HANDLE fileHandle = ::CreateFile(path, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	
 	if(INVALID_HANDLE_VALUE != fileHandle)
 	{
