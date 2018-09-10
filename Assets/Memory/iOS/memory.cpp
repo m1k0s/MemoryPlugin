@@ -263,7 +263,7 @@ PLUGIN_APICALL void* PLUGIN_APIENTRY MemoryMap(const char* path, void** data, in
 	{
 		DWORD sizeHI;
 		DWORD sizeLO = ::GetFileSize(fileHandle, &sizeHI);
-		size_t fileSize = (static_cast<size_t>(sizeHI) << (sizeof(DWORD) * 8)) | static_cast<size_t>(sizeLO);
+		size_t fileSize = (static_cast<size_t>(sizeHI) << 32) | static_cast<size_t>(sizeLO);
 		
 		if(0 != fileSize)
 		{
