@@ -7,3 +7,5 @@ EXPORTS
    ProcessResidentMemory
    ProcessVirtualMemory
    SystemFreeMemory
+   MemoryMap
+   MemoryUnMap
