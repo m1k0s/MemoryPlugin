@@ -250,12 +250,44 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemTotalMemory()
  *	@param[out]	size	The memory-mapped file size.
  */
 extern "C"
-PLUGIN_APICALL void PLUGIN_APIENTRY MemoryMap(const char* path, void** data, int64_t* size)
+PLUGIN_APICALL void* PLUGIN_APIENTRY MemoryMap(const char* path, void** data, int64_t* size)
 {
+	void* handle = NULL;
 	*data = NULL;
 	*size = -1;
 	
 #if defined(_WIN32)
+	HANDLE fileHandle = ::CreateFile(pathname, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	
+	if(INVALID_HANDLE_VALUE != fileHandle)
+	{
+		DWORD sizeHI;
+		DWORD sizeLO = ::GetFileSize(fileHandle, &sizeHI);
+		size_t fileSize = (static_cast<size_t>(sizeHI) << (sizeof(DWORD) * 8)) | static_cast<size_t>(sizeLO);
+		
+		if(0 != fileSize)
+		{
+			HANDLE mappingHandle = ::CreateFileMappingA(fileHandle, 0, PAGE_READONLY, sizeHI, sizeLO, NULL);
+			
+			if(INVALID_HANDLE_VALUE != mappingHandle)
+			{
+				*data = ::MapViewOfFile(mappingHandle, FILE_MAP_READ, 0, 0, fileSize);
+				
+				if(NULL == *data)
+				{
+					::CloseHandle(mappingHandle);
+					*data = NULL;
+				}
+				else
+				{
+					handle = reinterpret_cast<void*>(mappingHandle);
+					*size = static_cast<int64_t>(fileSize);
+				}
+			}
+		}
+		
+		::CloseHandle(fileHandle);
+	}
 #else
 	FILE* fd = ::fopen(path, "rb");
 	
@@ -281,18 +313,23 @@ PLUGIN_APICALL void PLUGIN_APIENTRY MemoryMap(const char* path, void** data, int
 		::fclose(fd);
 	}
 #endif
+	
+	return handle;
 }
 
 /**
  *	Unmap a memory-mapped file.
  *
+ *	@param	data	The memory-mapped file handle.
  *	@param	data	The memory-mapped file address.
  *	@param	size	The memory-mapped file size.
  */
 extern "C"
-PLUGIN_APICALL void PLUGIN_APIENTRY MemoryUnMap(void* data, int64_t size)
+PLUGIN_APICALL void PLUGIN_APIENTRY MemoryUnMap(void* handle, void* data, int64_t size)
 {
 #if defined(_WIN32)
+	::UnmapViewOfFile(data);
+	::CloseHandle(handle);
 #else
 	::munmap(data, size);
 #endif

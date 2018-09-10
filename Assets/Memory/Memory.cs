@@ -101,6 +101,7 @@ public static class Memory
             }
         }
 
+        private IntPtr _handle;
         private IntPtr _data = IntPtr.Zero;
         private long _size = 0;
         private bool _disposed = false;
@@ -155,7 +156,7 @@ public static class Memory
 
             var mappedFile = new MappedFile();
 
-            MemoryMap(path, out mappedFile._data, out mappedFile._size);
+            mappedFile._handle = MemoryMap(path, out mappedFile._data, out mappedFile._size);
             if (mappedFile._size == -1)
             {
                 throw new System.IO.IOException(string.Concat("Failed to memory-map \"", path, "\"."));
@@ -190,7 +191,7 @@ public static class Memory
 
             if (disposing)
             {
-                MemoryUnMap(_data, _size);
+                MemoryUnMap(_handle, _data, _size);
             }
 
             _disposed = true;
@@ -211,7 +212,7 @@ public static class Memory
 
     [DllImport(__importName)] extern private static long SystemTotalMemory();
 
-    [DllImport(__importName)] extern private static void MemoryMap(string path, out IntPtr data, out long size);
+    [DllImport(__importName)] extern private static IntPtr MemoryMap(string path, out IntPtr data, out long size);
 
-    [DllImport(__importName)] extern private static void MemoryUnMap(IntPtr data, long size);
+    [DllImport(__importName)] extern private static void MemoryUnMap(IntPtr handle, IntPtr data, long size);
 }
