@@ -106,6 +106,15 @@ public static class Memory
         private bool _disposed = false;
 
         /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="Memory+MappedFile"/> is reclaimed by garbage collection.
+        /// </summary>
+        ~MappedFile()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
         /// Creates a <see cref="Memory+MappedFile"/> instance from a file path.
         /// </summary>
         /// <returns>The <see cref="Memory+MappedFile"/>.</returns>
