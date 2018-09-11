@@ -1,6 +1,8 @@
 ﻿using System.Text;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class MemoryMapTest : MonoBehaviour
@@ -10,6 +12,7 @@ public class MemoryMapTest : MonoBehaviour
 
     private StringBuilder _builder = new StringBuilder();
 
+    private string _tmpFile = null;
     private Memory.MappedFile _mappedFile;
     private long _mappedFileDataStart = -1;
     private long _mappedFileDataEnd = -1;
@@ -26,20 +29,42 @@ public class MemoryMapTest : MonoBehaviour
             return;
         }
 
+
         text.text = string.Empty;
 
         _mappedFileDataStart = -1;
         _mappedFileDataEnd = -1;
         _lastDisplayStart = -1;
 
-#if UNITY_EDITOR
-        var path = Application.dataPath + "/StreamingAssets/";
-#elif UNITY_IOS
-        var path = Application.dataPath + "/Raw/";
-#elif UNITY_ANDROID
-        var path = "jar:file://" + Application.dataPath + "!/assets/";
-#endif
-        _mappedFile = Memory.MappedFile.CreateFromFile(path + file);
+        StartCoroutine(MemoryMapFile());
+    }
+
+    private IEnumerator MemoryMapFile()
+    {
+        string path = System.IO.Path.Combine(Application.streamingAssetsPath, file);
+        Debug.LogFormat("MemoryMapTest: {0}", path);
+
+        if(path.Contains("://"))
+        {
+            // StreamingAssets on Android is packed in the compressed jar so we can't mmap it directly...
+            // Use UnityWebRequest to copy to a tmp file first.
+            UnityWebRequest req = UnityWebRequest.Get(path);
+
+            // We can't use System.IO.Path.GetTempFileName() on Android either...
+            path = System.IO.Path.Combine(Application.temporaryCachePath, System.IO.Path.GetRandomFileName());
+            Debug.LogFormat("MemoryMapTest: {0}", path);
+
+            // Kick off the async operation saving the file directly to disk.
+            req.downloadHandler = new DownloadHandlerFile(path);
+            yield return req.SendWebRequest();
+
+            if(req.isNetworkError || req.isHttpError)
+            {
+                throw new System.IO.IOException(req.error);
+            }
+        }
+
+        _mappedFile = Memory.MappedFile.CreateFromFile(path);
         if (null != _mappedFile && System.IntPtr.Zero != _mappedFile.data)
         {
             _mappedFileDataStart = _mappedFile.data.ToInt64();
@@ -47,6 +72,8 @@ public class MemoryMapTest : MonoBehaviour
             _mappedFileDataOffset = 0;
             Redraw();
         }
+
+        yield return null;
     }
 
     private void OnDisable()
@@ -57,6 +84,12 @@ public class MemoryMapTest : MonoBehaviour
             _mappedFile = null;
             _mappedFileDataStart = -1;
             _mappedFileDataEnd = -1;
+        }
+
+        if (null != _tmpFile)
+        {
+            System.IO.File.Delete(_tmpFile);
+            _tmpFile = null;
         }
 
         if (null != text)
@@ -181,7 +214,7 @@ internal static class StringBuilderExtensions
             n /= radix;
             --fieldSize;
         }
-        while(n > 0);
+        while (n > 0);
 
         while (fieldSize-- > 0)
         {
