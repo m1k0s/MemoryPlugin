@@ -129,12 +129,12 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
 {
 #if defined(__MACH__)
     mach_port_t task = mach_task_self();
-    struct task_basic_info info;
-    mach_msg_type_number_t size = sizeof(info);
-    if(KERN_SUCCESS == task_info(task, TASK_BASIC_INFO, (task_info_t)&info, &size))
-    {
-        return static_cast<int64_t>(info.resident_size);
-    }
+	struct task_vm_info info;
+	mach_msg_type_number_t size = TASK_VM_INFO_COUNT;
+	if(KERN_SUCCESS == task_info(task, TASK_VM_INFO, (task_info_t)&info, &size))
+	{
+		return static_cast<int64_t>(info.internal + info.compressed);
+	}
 #elif defined(__ANDROID__)
 	static const char* const sums[] = { "VmRSS:", NULL };
 	static const size_t sumsLen[] = { strlen("VmRSS:"), 0 };
@@ -157,9 +157,9 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
 {
 #if defined(__MACH__)
     mach_port_t task = mach_task_self();
-    struct task_basic_info info;
-    mach_msg_type_number_t size = sizeof(info);
-    if(KERN_SUCCESS == task_info(task, TASK_BASIC_INFO, (task_info_t)&info, &size))
+	struct task_vm_info info;
+	mach_msg_type_number_t size = TASK_VM_INFO_COUNT;
+	if(KERN_SUCCESS == task_info(task, TASK_VM_INFO, (task_info_t)&info, &size))
     {
         return static_cast<int64_t>(info.virtual_size);
     }
