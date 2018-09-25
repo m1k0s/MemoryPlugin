@@ -23,8 +23,9 @@ public static class Memory
     /// Gets the process total (native) resident memory.
     /// </summary>
     /// This only includes pages that are currently resident.
-    /// On iOS in particular, in a memory pressure situation, resident
-    /// will be very close to "dirty" memory.
+    /// On iOS/OSX this means dirty + plus compressed.
+    /// On Android this means VmRSS.
+    /// On Windows this means WorkingSetSize.
     /// <value>The process resident memory in use.</value>
     public static long processResidentUsed
     {
