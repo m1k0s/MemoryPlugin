@@ -320,7 +320,7 @@ PLUGIN_APICALL void* PLUGIN_APIENTRY MemoryMap(const char* path, void** data, in
 /**
  *	Unmap a memory-mapped file.
  *
- *	@param	data	The memory-mapped file handle.
+ *	@param	handle	The memory-mapped file handle.
  *	@param	data	The memory-mapped file address.
  *	@param	size	The memory-mapped file size.
  */
