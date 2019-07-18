@@ -1,3 +1,5 @@
+/// Source: https://github.com/m1k0s/MemoryPlugin
+
 #include <stdint.h>
 
 #if defined(__MACH__)
@@ -18,18 +20,18 @@
 #endif
 
 #if defined(_WIN32) && !defined(__SCITECH_SNAP__)
-#   define PLUGIN_APICALL __declspec(dllexport)
+#	define PLUGIN_APICALL __declspec(dllexport)
 #elif defined(__ANDROID__)
-#   include <sys/cdefs.h>
-#   define PLUGIN_APICALL __attribute__((visibility("default"))) __NDK_FPABI__
+#	include <sys/cdefs.h>
+#	define PLUGIN_APICALL __attribute__((visibility("default"))) __NDK_FPABI__
 #else
-#   define PLUGIN_APICALL
+#	define PLUGIN_APICALL
 #endif
 
 #if defined(_WIN32) && !defined(_WIN32_WCE) && !defined(__SCITECH_SNAP__)
-#   define PLUGIN_APIENTRY __stdcall
+#	define PLUGIN_APIENTRY __stdcall
 #else
-#   define PLUGIN_APIENTRY
+#	define PLUGIN_APIENTRY
 #endif
 
 #if defined(__ANDROID__)
@@ -128,7 +130,7 @@ extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
 {
 #if defined(__MACH__)
-    mach_port_t task = mach_task_self();
+	mach_port_t task = mach_task_self();
 	struct task_vm_info info;
 	mach_msg_type_number_t size = TASK_VM_INFO_COUNT;
 	if(KERN_SUCCESS == task_info(task, TASK_VM_INFO, (task_info_t)&info, &size))
@@ -144,7 +146,7 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
 	GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&pmc), sizeof(pmc));
 	return static_cast<int64_t>(pmc.WorkingSetSize);
 #endif
-    return 0;
+	return 0;
 }
 
 /**
@@ -156,13 +158,13 @@ extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
 {
 #if defined(__MACH__)
-    mach_port_t task = mach_task_self();
+	mach_port_t task = mach_task_self();
 	struct task_vm_info info;
 	mach_msg_type_number_t size = TASK_VM_INFO_COUNT;
 	if(KERN_SUCCESS == task_info(task, TASK_VM_INFO, (task_info_t)&info, &size))
-    {
-        return static_cast<int64_t>(info.virtual_size);
-    }
+	{
+		return static_cast<int64_t>(info.virtual_size);
+	}
 #elif defined(__ANDROID__)
 	static const char* const sums[] = { "VmSize:", NULL };
 	static const size_t sumsLen[] = { strlen("VmSize:"), 0 };
@@ -172,7 +174,7 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessVirtualMemory()
 	GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&pmc), sizeof(pmc));
 	return static_cast<int64_t>(pmc.PrivateUsage);
 #endif
-    return 0;
+	return 0;
 }
 
 /**
@@ -184,28 +186,28 @@ extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemFreeMemory()
 {
 #if defined(__MACH__)
-    mach_port_t host = mach_host_self();
-    mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
-    vm_size_t pagesize;
-    vm_statistics_data_t vm_stat;
-    if(KERN_SUCCESS == host_page_size(host, &pagesize))
-    {
-        if(KERN_SUCCESS == host_statistics(host, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size))
-        {
-            return static_cast<int64_t>(vm_stat.free_count * pagesize);
-        }
-    }
+	mach_port_t host = mach_host_self();
+	mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
+	vm_size_t pagesize;
+	vm_statistics_data_t vm_stat;
+	if(KERN_SUCCESS == host_page_size(host, &pagesize))
+	{
+		if(KERN_SUCCESS == host_statistics(host, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size))
+		{
+			return static_cast<int64_t>(vm_stat.free_count * pagesize);
+		}
+	}
 #elif defined(__ANDROID__)
-    static const char* const sums[] = { "MemFree:", "Cached:", NULL };
-    static const size_t sumsLen[] = { strlen("MemFree:"), strlen("Cached:"), 0 };
-    return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 2) * KIBIBYTES_TO_BYTES;
+	static const char* const sums[] = { "MemFree:", "Cached:", NULL };
+	static const size_t sumsLen[] = { strlen("MemFree:"), strlen("Cached:"), 0 };
+	return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 2) * KIBIBYTES_TO_BYTES;
 #elif defined(_WIN32)
 	MEMORYSTATUSEX memInfo;
 	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&memInfo);
 	return static_cast<int64_t>(memInfo.ullTotalPhys - memInfo.ullAvailPhys);
 #endif
-    return 0;
+	return 0;
 }
 
 /**
@@ -217,29 +219,29 @@ extern "C"
 PLUGIN_APICALL int64_t PLUGIN_APIENTRY SystemTotalMemory()
 {
 #if defined(__MACH__)
-    mach_port_t host = mach_host_self();
-    mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
-    vm_size_t pagesize;
-    vm_statistics_data_t vm_stat;
-    if(KERN_SUCCESS == host_page_size(host, &pagesize))
-    {
-        if(KERN_SUCCESS == host_statistics(host, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size))
-        {
+	mach_port_t host = mach_host_self();
+	mach_msg_type_number_t host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
+	vm_size_t pagesize;
+	vm_statistics_data_t vm_stat;
+	if(KERN_SUCCESS == host_page_size(host, &pagesize))
+	{
+		if(KERN_SUCCESS == host_statistics(host, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size))
+		{
 			natural_t used_count = vm_stat.active_count + vm_stat.inactive_count + vm_stat.wire_count;
-            return static_cast<int64_t>((vm_stat.free_count + used_count) * pagesize);
-        }
-    }
+			return static_cast<int64_t>((vm_stat.free_count + used_count) * pagesize);
+		}
+	}
 #elif defined(__ANDROID__)
-    static const char* const sums[] = { "MemTotal:", NULL };
-    static const size_t sumsLen[] = { strlen("MemTotal:"), 0 };
-    return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
+	static const char* const sums[] = { "MemTotal:", NULL };
+	static const size_t sumsLen[] = { strlen("MemTotal:"), 0 };
+	return getMemoryImpl(__FUNCTION__, "/proc/meminfo", sums, sumsLen, 1) * KIBIBYTES_TO_BYTES;
 #elif defined(_WIN32)
 	MEMORYSTATUSEX memInfo;
 	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&memInfo);
 	return static_cast<int64_t>(memInfo.ullTotalPhys);
 #endif
-    return 0;
+	return 0;
 }
 
 /**
