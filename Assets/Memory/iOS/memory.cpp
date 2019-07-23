@@ -132,10 +132,21 @@ PLUGIN_APICALL int64_t PLUGIN_APIENTRY ProcessResidentMemory()
 #if defined(__MACH__)
 	mach_port_t task = mach_task_self();
 	struct task_vm_info info;
-	mach_msg_type_number_t size = TASK_VM_INFO_COUNT;
-	if(KERN_SUCCESS == task_info(task, TASK_VM_INFO, (task_info_t)&info, &size))
+	mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+	if(KERN_SUCCESS == task_info(task, TASK_VM_INFO, (task_info_t)&info, &count))
 	{
-		return static_cast<int64_t>(info.internal + info.compressed);
+		mach_vm_size_t resident = info.internal + info.compressed;
+		// Is task_vm_info.phys_footprint available
+		if(count >= TASK_VM_INFO_REV1_COUNT)
+		{
+			// Is task_vm_info.phys_footprint sensible
+			if(info.phys_footprint > resident)
+			{
+				// Use it in preference
+				resident = info.phys_footprint;
+			}
+		}
+		return static_cast<int64_t>(resident);
 	}
 #elif defined(__ANDROID__)
 	static const char* const sums[] = { "VmRSS:", NULL };
