@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #elif defined(__ANDROID__)
 #include <fcntl.h>
 #include <stdlib.h>
@@ -14,6 +15,8 @@
 #include <stdio.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/vfs.h>
+#define statvfs statfs
 #elif defined(_WIN32)
 #include "windows.h"
 #include "psapi.h"
@@ -345,5 +348,41 @@ PLUGIN_APICALL void PLUGIN_APIENTRY MemoryUnMap(void* handle, void* data, int64_
 	::CloseHandle(handle);
 #else
 	::munmap(data, size);
+#endif
+}
+
+/**
+ *	Return the filesystem total size.
+ *
+ *	@param	path	The filesystem path to check.
+ *	@param[out]	total	Return the filesystem total size in bytes.
+ *	@param[out]	free	Return the filesystem free size in bytes.
+ *	@param[out]	available	Return the filesystem available size in bytes.
+ */
+extern "C"
+PLUGIN_APICALL void PLUGIN_APIENTRY FilesystemSize(const char* path, uint64_t* total, uint64_t* free, uint64_t* available)
+{
+#if defined(_WIN32)
+	ULARGE_INTEGER freeBytesAvailableToCaller;
+	ULARGE_INTEGER totalNumberOfBytes;
+	ULARGE_INTEGER totalNumberOfFreeBytes;
+	if(GetDiskFreeSpaceEx(path, &freeBytesAvailableToCaller, &totalNumberOfBytes, &totalNumberOfFreeBytes))
+	{
+		*total = totalNumberOfBytes.QuadPart;
+		*free = totalNumberOfFreeBytes.QuadPart;
+		*available = freeBytesAvailableToCaller.QuadPart;
+	}
+	else
+	{
+		*total = 0;
+		*free = 0;
+		*available = 0;
+	}
+#else
+	struct statvfs vfs;
+	statvfs(path, &vfs);
+	*total = static_cast<uint64_t>(vfs.f_blocks) * static_cast<uint64_t>(vfs.f_frsize);
+	*free = static_cast<uint64_t>(vfs.f_bfree) * static_cast<uint64_t>(vfs.f_frsize);
+	*available = static_cast<uint64_t>(vfs.f_bavail) * static_cast<uint64_t>(vfs.f_frsize);
 #endif
 }
