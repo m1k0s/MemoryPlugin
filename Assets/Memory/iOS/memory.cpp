@@ -273,13 +273,13 @@ PLUGIN_APICALL void* PLUGIN_APIENTRY MemoryMap(const char* path, void** data, in
 	*size = -1;
 	
 #if defined(_WIN32)
-	HANDLE fileHandle = ::CreateFile(path, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	HANDLE fileHandle = ::CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	
 	if(INVALID_HANDLE_VALUE != fileHandle)
 	{
 		DWORD sizeHI;
 		DWORD sizeLO = ::GetFileSize(fileHandle, &sizeHI);
-		size_t fileSize = (static_cast<size_t>(sizeHI) << 32) | static_cast<size_t>(sizeLO);
+		int64_t fileSize = (static_cast<int64_t>(sizeHI) << 32) | static_cast<int64_t>(sizeLO);
 		
 		if(0 != fileSize)
 		{
@@ -287,7 +287,7 @@ PLUGIN_APICALL void* PLUGIN_APIENTRY MemoryMap(const char* path, void** data, in
 			
 			if(INVALID_HANDLE_VALUE != mappingHandle)
 			{
-				*data = ::MapViewOfFile(mappingHandle, FILE_MAP_READ, 0, 0, fileSize);
+				*data = ::MapViewOfFile(mappingHandle, FILE_MAP_READ, 0, 0, static_cast<size_t>(fileSize));
 				
 				if(NULL == *data)
 				{
@@ -297,7 +297,7 @@ PLUGIN_APICALL void* PLUGIN_APIENTRY MemoryMap(const char* path, void** data, in
 				else
 				{
 					handle = reinterpret_cast<void*>(mappingHandle);
-					*size = static_cast<int64_t>(fileSize);
+					*size = fileSize;
 				}
 			}
 		}
@@ -366,7 +366,7 @@ PLUGIN_APICALL void PLUGIN_APIENTRY FilesystemSize(const char* path, uint64_t* t
 	ULARGE_INTEGER freeBytesAvailableToCaller;
 	ULARGE_INTEGER totalNumberOfBytes;
 	ULARGE_INTEGER totalNumberOfFreeBytes;
-	if(GetDiskFreeSpaceEx(path, &freeBytesAvailableToCaller, &totalNumberOfBytes, &totalNumberOfFreeBytes))
+	if(GetDiskFreeSpaceExA(path, &freeBytesAvailableToCaller, &totalNumberOfBytes, &totalNumberOfFreeBytes))
 	{
 		*total = totalNumberOfBytes.QuadPart;
 		*free = totalNumberOfFreeBytes.QuadPart;
