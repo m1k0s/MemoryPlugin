@@ -1,3 +1,7 @@
 #!/bin/bash -x
-~/Development/android-ndk-r10e/ndk-build
+if [ ! -d $ANDROID_NDK ]; then
+	echo "Set ANDROID_NDK to the root of the android NDK before proceeding."
+	exit 1
+fi
+$ANDROID_NDK/ndk-build
 cp libs/armeabi/libmemory.so ../../Assets/Memory/Android/
