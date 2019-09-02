@@ -75,6 +75,66 @@ public static class Memory
 	}
 
 	/// <summary>
+	/// Return the filesystem free size.
+	/// </summary>
+	/// <returns>TThe filesystem free size in bytes.</returns>
+	/// <param name="path">The filesystem path to check..</param>
+	public static ulong TotalSize(string path)
+	{
+		if (path == null)
+		{
+			throw new ArgumentNullException();
+		}
+
+		ulong total;
+		ulong free;
+		ulong available;
+		FilesystemSize(path, out total, out free, out available);
+
+		return total;
+	}
+
+	/// <summary>
+	/// Return the filesystem free size.
+	/// </summary>
+	/// <returns>TThe filesystem free size in bytes.</returns>
+	/// <param name="path">The filesystem path to check..</param>
+	public static ulong FreeSize(string path)
+	{
+		if (path == null)
+		{
+			throw new ArgumentNullException();
+		}
+
+		ulong total;
+		ulong free;
+		ulong available;
+		FilesystemSize(path, out total, out free, out available);
+
+		return free;
+	}
+
+	/// <summary>
+	/// Return the filesystem available size.
+	/// </summary>
+	/// <returns>TThe filesystem available size in bytes.</returns>
+	/// <param name="path">The filesystem path to check..</param>
+	public static ulong AvailableSize(string path)
+	{
+		if (path == null)
+		{
+			throw new ArgumentNullException();
+		}
+
+		ulong total;
+		ulong free;
+		ulong available;
+		FilesystemSize(path, out total, out free, out available);
+
+		return available;
+	}
+
+	/// <summary>
 	/// C# class representing a memory-mapped file.
 	/// </summary>
 	public class MappedFile : IDisposable
@@ -218,4 +278,6 @@ public static class Memory
 	[DllImport(__importName)] extern private static IntPtr MemoryMap(string path, out IntPtr data, out long size);
 
 	[DllImport(__importName)] extern private static void MemoryUnMap(IntPtr handle, IntPtr data, long size);
+
+	[DllImport(__importName)] extern private static void FilesystemSize(string path, out ulong total, out ulong free, out ulong available);
 }
