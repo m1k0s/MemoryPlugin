@@ -16,6 +16,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
+#include <unistd.h>
+#include <string.h>
 #define statvfs statfs
 #elif defined(_WIN32)
 #include "windows.h"
@@ -26,7 +28,12 @@
 #	define PLUGIN_APICALL __declspec(dllexport)
 #elif defined(__ANDROID__)
 #	include <sys/cdefs.h>
-#	define PLUGIN_APICALL __attribute__((visibility("default"))) __NDK_FPABI__
+// Copy what KHRONOS_APICALL does (in <>/usr/include/KHR/khrplatform.h)
+#   ifdef __NDK_FPABI__
+#	    define PLUGIN_APICALL __attribute__((visibility("default"))) __NDK_FPABI__
+#   else
+#	    define PLUGIN_APICALL __attribute__((visibility("default")))
+#   endif
 #else
 #	define PLUGIN_APICALL
 #endif
