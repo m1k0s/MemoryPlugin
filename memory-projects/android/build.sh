@@ -4,4 +4,4 @@ if [ ! -d $ANDROID_NDK ]; then
 	exit 1
 fi
 $ANDROID_NDK/ndk-build
-cp libs/armeabi/libmemory.so ../../Assets/Memory/Android/
+cp -r libs/* ../../Assets/Memory/Android/
