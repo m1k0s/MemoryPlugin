@@ -10,14 +10,14 @@ public class MemoryMapTest : MonoBehaviour
     public Text text;
     public string file;
 
-    private StringBuilder _builder = new StringBuilder();
+    private readonly StringBuilder _builder = new();
 
     private string _tmpFile = null;
     private Memory.MappedFile _mappedFile;
     private long _mappedFileDataStart = -1;
     private long _mappedFileDataEnd = -1;
     private long _mappedFileDataOffset = 0;
-    private byte[] _buffer = new byte[512];
+    private readonly byte[] _buffer = new byte[512];
 
     private long _lastDisplayStart = -1;
 
@@ -44,7 +44,7 @@ public class MemoryMapTest : MonoBehaviour
         string path = System.IO.Path.Combine(Application.streamingAssetsPath, file);
         Debug.LogFormat("MemoryMapTest: {0}", path);
 
-        if(path.Contains("://"))
+        if (path.Contains("://"))
         {
             // StreamingAssets on Android is packed in the compressed jar so we can't mmap it directly...
             // Use UnityWebRequest to copy to a tmp file first.
@@ -58,7 +58,7 @@ public class MemoryMapTest : MonoBehaviour
             req.downloadHandler = new DownloadHandlerFile(path);
             yield return req.SendWebRequest();
 
-            if(req.isNetworkError || req.isHttpError)
+            if (req.isNetworkError || req.isHttpError)
             {
                 throw new System.IO.IOException(req.error);
             }
@@ -202,7 +202,7 @@ internal static class StringBuilderExtensions
         'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V'
     };
 
-    private static Stack<char> _buffer = new Stack<char>(16);
+    private static readonly Stack<char> _buffer = new Stack<char>(16);
 
     public static StringBuilder Append(this StringBuilder sb, ulong n, int fieldSize = 0, ulong radix = 16)
     {
