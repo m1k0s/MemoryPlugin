@@ -10,7 +10,7 @@ public class MemoryMapTest : MonoBehaviour
     public Text text;
     public string file;
 
-    private readonly StringBuilder _builder = new();
+    private readonly StringBuilder _builder = new StringBuilder();
 
     private string _tmpFile = null;
     private Memory.MappedFile _mappedFile;
