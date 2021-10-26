@@ -5,6 +5,7 @@ Logs/
 obj/
 build/
 .vs/
+.idea/
 *.sln
 *.csproj
 *.userprefs
