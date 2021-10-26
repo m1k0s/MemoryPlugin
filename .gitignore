@@ -1,5 +1,7 @@
+UserSettings/
 Library/
 Temp/
+Logs/
 obj/
 build/
 .vs/
@@ -7,3 +9,4 @@ build/
 *.csproj
 *.userprefs
 *.user
+Packages/packages-lock.json
