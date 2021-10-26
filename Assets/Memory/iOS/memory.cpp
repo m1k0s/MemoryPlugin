@@ -25,8 +25,11 @@
 #endif
 
 #if defined(_WIN32) && !defined(__SCITECH_SNAP__)
+
 #	define PLUGIN_APICALL __declspec(dllexport)
+
 #elif defined(__ANDROID__)
+
 #	include <sys/cdefs.h>
 // Copy what KHRONOS_APICALL does (in <>/usr/include/KHR/khrplatform.h)
 #   ifdef __NDK_FPABI__
@@ -34,8 +37,40 @@
 #   else
 #	    define PLUGIN_APICALL __attribute__((visibility("default")))
 #   endif
+
+// Work out the Android ABI (https://github.com/android/ndk-samples/blob/master/hello-jni/app/src/main/cpp/hello-jni.c)
+#   if defined(__arm__)
+#      if defined(__ARM_ARCH_7A__)
+#           if defined(__ARM_NEON__)
+#               if defined(__ARM_PCS_VFP)
+#                   define ABI "armeabi-v7a/NEON (hard-float)"
+#               else
+#                   define ABI "armeabi-v7a/NEON"
+#               endif
+#           else
+#               if defined(__ARM_PCS_VFP)
+#                   define ABI "armeabi-v7a (hard-float)"
+#               else
+#                   define ABI "armeabi-v7a"
+#               endif
+#           endif
+#       else
+#           define ABI "armeabi"
+#       endif
+#   elif defined(__i386__)
+#       define ABI "x86"
+#   elif defined(__x86_64__)
+#       define ABI "x86_64"
+#   elif defined(__aarch64__)
+#       define ABI "arm64-v8a"
+#   else
+#       define ABI "unknown"
+#   endif
+
 #else
+
 #	define PLUGIN_APICALL
+
 #endif
 
 #if defined(_WIN32) && !defined(_WIN32_WCE) && !defined(__SCITECH_SNAP__)
@@ -61,6 +96,7 @@
  */
 static int64_t getMemoryImpl(const char* const caller, const char* const file, const char* const sums[], const size_t sumsLen[], size_t num)
 {
+	//__android_log_print(ANDROID_LOG_DEBUG, caller, "ABI %s\n", ABI);
 	int fd = open(file, O_RDONLY | O_CLOEXEC);
 	if(fd < 0)
 	{
