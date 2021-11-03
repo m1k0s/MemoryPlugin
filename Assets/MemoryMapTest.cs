@@ -58,7 +58,9 @@ public class MemoryMapTest : MonoBehaviour
             req.downloadHandler = new DownloadHandlerFile(path);
             yield return req.SendWebRequest();
 
-            if (req.isNetworkError || req.isHttpError)
+            if (req.result == UnityWebRequest.Result.ConnectionError ||
+                req.result == UnityWebRequest.Result.ProtocolError ||
+                req.result == UnityWebRequest.Result.DataProcessingError)
             {
                 throw new System.IO.IOException(req.error);
             }
