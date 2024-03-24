@@ -5,9 +5,11 @@ Logs/
 obj/
 build/
 .vs/
+.vscode/
 .idea/
 *.sln
 *.csproj
 *.userprefs
 *.user
+*.xcscheme
 Packages/packages-lock.json
